@@ -15,7 +15,7 @@ inputs:
     default: 'ubuntu18.04'
   githubToken:
     description: 'Your GitHub token, used for caching Docker images in your project''s public package registry. Usually this would just be $\{{ github.token }}. This speeds up builds and is highly recommended.'
-    required: true
+    required: false
     default: ''
   env:
     description: 'Environment variables to propagate to the container. YAML, but must begin with a | character. These variables will be available in both run and setup.'
@@ -44,10 +44,10 @@ inputs:
     required: false
     default: ''
   qemu_static_image:
-    description: 'Specify a custom image for registering QEMU emulators. If not set, \"multiarch/qemu-user-static\" will be used by default.'
+    description: 'Specify a custom image for registering QEMU emulators. If not set, \"tonistiigi/binfmt\" will be used by default.'
     required: false
-    default: 'multiarch/qemu-user-static'
+    default: 'tonistiigi/binfmt'
 
 runs:
-  using: 'node16'
+  using: 'node24'
   main: 'src/run-on-arch.js'
