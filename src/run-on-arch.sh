@@ -37,7 +37,10 @@ install_deps () {
   # Install support for non-x86 emulation in Docker via QEMU.
   # Platforms: linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
   #            linux/386, linux/arm/v7, linux/arm/v6
-  docker run --rm --privileged $QEMU_STATIC_CONTAINER --reset -p yes --credential yes
+  sudo apt update -q -y
+  docker run --rm --privileged "$QEMU_STATIC_CONTAINER" --install all
+  #Print versions
+  docker run --privileged --rm "$QEMU_STATIC_CONTAINER" --version || true
 }
 
 build_container () {
@@ -72,7 +75,8 @@ build_container () {
       "${ACTION_DIR}/Dockerfiles" \
       --file "$DOCKERFILE" \
       --tag "${CONTAINER_NAME}:latest" \
-      --cache-from="$PACKAGE_REGISTRY"
+      --cache-from="$PACKAGE_REGISTRY" \
+      --build-arg BUILDKIT_INLINE_CACHE=1
     docker tag "${CONTAINER_NAME}:latest" "$PACKAGE_REGISTRY" \
       && docker push "$PACKAGE_REGISTRY" || true
   fi
@@ -95,6 +99,17 @@ run_container () {
   # The location of the event.json file
   EVENT_DIR=$(dirname "$GITHUB_EVENT_PATH")
 
+  FILE_COMMAND_ARGS=()
+  for file_command in GITHUB_OUTPUT GITHUB_ENV GITHUB_PATH GITHUB_STEP_SUMMARY GITHUB_STATE
+  do
+    file_command_path="${!file_command:-}"
+    if [[ -n "$file_command_path" ]]
+    then
+      FILE_COMMAND_ARGS+=( -e "$file_command" )
+      FILE_COMMAND_ARGS+=( -v "$file_command_path:$file_command_path" )
+    fi
+  done
+
   docker run \
     --workdir "${GITHUB_WORKSPACE}" \
     --rm \
@@ -106,7 +121,6 @@ run_container () {
     -e GITHUB_ACTOR \
     -e GITHUB_API_URL \
     -e GITHUB_BASE_REF \
-    -e GITHUB_ENV \
     -e GITHUB_EVENT_NAME \
     -e GITHUB_EVENT_PATH \
     -e GITHUB_GRAPHQL_URL \
@@ -124,6 +138,7 @@ run_container () {
     -e RUNNER_TEMP \
     -e RUNNER_TOOL_CACHE \
     -e RUNNER_WORKSPACE \
+    "${FILE_COMMAND_ARGS[@]}" \
     -v "/var/run/docker.sock:/var/run/docker.sock" \
     -v "${EVENT_DIR}:${EVENT_DIR}" \
     -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" \
@@ -136,10 +151,13 @@ run_container () {
 
 # Installing deps produces a lot of log noise, so we do so quietly
 quiet rm -f build-log.txt
-quiet install_deps
+install_deps
 
 echo "::group::Build container"
 build_container
+echo "::endgroup::"
 
 echo "::group::Run container"
 run_container
+echo "::endgroup::"
+
