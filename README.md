@@ -15,7 +15,7 @@ A GitHub Action that executes commands on non-x86 CPU architecture (armv6, armv7
 This action requires three input parameters:
 
 * `arch`: CPU architecture: `armv6`, `armv7`, `aarch64`, `riscv64`, `s390x`, or `ppc64le`. See [Supported Platforms](#supported-platforms) for the full matrix.
-* `distro`: Linux distribution name: `ubuntu24.04`,`ubuntu22.04`,`ubuntu20.04`, `bookworm`,`bullseye`, `buster`, `stretch`,  `fedora_latest`, `alpine_latest` or `archarm_latest`. See [Supported Platforms](#supported-platforms) for the full matrix.
+* `distro`: Linux distribution name: `ubuntu24.04`, `ubuntu22.04`, `ubuntu20.04`, `bookworm`, `bullseye`, `buster`, `stretch`, `fedora_latest`, `alpine_latest` or `archarm_latest`. See [Supported Platforms](#supported-platforms) for the full matrix.
 * `run`: Shell commands to execute in the container.
 
 The action also accepts some optional input parameters:
@@ -26,7 +26,7 @@ The action also accepts some optional input parameters:
 * `dockerRunArgs`: Additional arguments to pass to `docker run`, such as volume mappings. See [`docker run` documentation](https://docs.docker.com/engine/reference/commandline/run).
 * `setup`: Shell commands to execute on the host before running the container, such as creating directories for volume mappings.
 * `install`: Shell commands to execute in the container as part of `docker build`, such as installing dependencies. This speeds up subsequent builds if `githubToken` is also used, but note that the image layer will be publicly available in your projects GitHub Package Registry, so make sure the resulting image does not have any secrets cached in logs or state.
-* `base_image`: Specify a custom base image, `arch` and `distro` should be set to `none` in this case. This will allow you to choose direcly the image that will be used in the *FROM* clause of the internal docker container without needing to create a Dockerfile.arch.distro for a specific arch/distro pair. If required by the docker image, the architecture can be specified prepenging the platform identifier before the image name, e.g. `--platform=linux/armv7 arm32v7/debian:buster`. Known limitation: Only one base_image configuration for each workflow if you use GitHub images caching.
+* `base_image`: Specify a custom base image, `arch` and `distro` should be set to `none` in this case. This will allow you to choose directly the image that will be used in the *FROM* clause of the internal docker container without needing to create a Dockerfile.arch.distro for a specific arch/distro pair. If required by the docker image, the architecture can be specified prepending the platform identifier before the image name, e.g. `--platform=linux/armv7 arm32v7/debian:buster`. Known limitation: Only one base_image configuration for each workflow if you use GitHub images caching.
 * `qemu_static_image`: Specify a custom image for registering QEMU emulators. If not set, **tonistiigi/binfmt** will be used by default.
 
 ### Basic example
@@ -85,7 +85,7 @@ jobs:
           - arch: aarch64
             distro: ubuntu24.04
           - arch: aarch64
-            distro: bullseye 
+            distro: bullseye
           - arch: ppc64le
             distro: alpine_latest
           - arch: none
@@ -161,7 +161,7 @@ This table details the valid `arch`/`distro` combinations:
 | arch     | distro     |
 | -------- | ---------- |
 | armv6    | stretch, buster, bullseye, bookworm, alpine_latest |
-| armv7    | stretch, buster, bullseye, bookworm, ubuntu20.04, ubuntu22.04 ubuntu24.04,, ubuntu_latest, ubuntu_rolling, ubuntu_devel, fedora_latest, alpine_latest, archarm_latest |
+| armv7    | stretch, buster, bullseye, bookworm, ubuntu20.04, ubuntu22.04, ubuntu24.04, ubuntu_latest, ubuntu_rolling, ubuntu_devel, fedora_latest, alpine_latest, archarm_latest |
 | aarch64  | stretch, buster, bullseye, bookworm, ubuntu20.04, ubuntu22.04, ubuntu24.04, ubuntu_latest, ubuntu_rolling, ubuntu_devel, fedora_latest, alpine_latest, archarm_latest |
 | riscv64  | ubuntu20.04, ubuntu22.04, ubuntu24.04, ubuntu_latest, ubuntu_rolling, ubuntu_devel, alpine_edge |
 | s390x    | stretch, buster, bullseye, bookworm, ubuntu20.04, ubuntu22.04, ubuntu24.04, ubuntu_latest, ubuntu_rolling, ubuntu_devel, alpine_latest |
